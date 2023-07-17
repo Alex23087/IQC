@@ -1,0 +1,203 @@
+\documentclass[11pt,svgnames,smaller,aspectratio=169,english]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{graphs,graphdrawing,arrows.meta,positioning,quotes,external,chains,graphs.standard}
+\tikzexternalize[prefix=tikzfigures/]
+\usegdlibrary{trees}
+\usepackage{xcolor}
+\usepackage{subfig}
+\usepackage{braket}
+
+\usetheme{UniPi}
+\setbeamercovered{transparent=0}
+\setbeamersize{text margin left=15mm,text margin right=15mm}
+\setbeamertemplate{itemize subitem}{-}
+\uselanguage{english}
+\languagepath{english}
+
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
+\def\mathunderline#1#2{\color{#1}\underline{{\color{black}#2}}\color{black}}
+\newcommand{\tensor}{\otimes}
+
+
+
+
+\title{Quantum Abstract Interpretation}
+\author{Alessandro Scala}
+\institute[Università di Pisa]{Università di Pisa\\Dipartimento di Informatica}
+\date{Pisa, 24 Luglio 2023}
+\extra{Seminar for the \textbf{Introduction to Quantum Computing} course}
+
+\usepackage{transparent}
+\mode<presentation>
+
+\begin{document}
+
+\begin{frame} 
+	\titlepage
+\end{frame}
+\logo{\transparent{0.2}\includegraphics[height=2cm]{images/cherubino}}
+
+
+
+% ------------------ CHANGE FROM HERE ------------------
+
+\begin{frame}{Roadmap}
+	\tableofcontents
+\end{frame}
+
+\begin{frame}{Introduction}
+	As quantum computing advances, we would like to have some means to prove correctness properties on quantum programs, \emph{especially} since quantum programming is counterintuitive.\\
+\end{frame}
+
+\begin{frame}<1-4>[label=reasons]{Reasons}
+	The naive way to check properties of a program is to run it and \textbf<2>{observe} its behaviour.\\\;\\
+	\pause
+	\alert{We cannot \textbf{observe} the state of a quantum program!}\\\;\\
+	\pause
+	Could \textbf{simulation} on a classical machine solve this issue?\\\;\\
+	\pause
+	\alert{No: \textbf{exponential} space and time cost.}\\\;\\\;\\
+	\pause
+	\begin{center}
+		\large \color{blue} Solution: abstract interpretation
+	\end{center}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Example}
+	\only<1>{
+		\begin{gather*}
+			n_{qubits} = 1\\\;\\
+			\ket{0}\bra{0}\\\;\\
+			\begin{pmatrix}
+				1 & 0\\0 & 0
+			\end{pmatrix}\\\;\\
+			2^2 = 4 \text{ complex numbers}
+		\end{gather*}
+	}
+	\only<2>{
+		\begin{gather*}
+			n_{qubits} = 2\\\;\\
+			\ket{00}\bra{00}\\\;\\
+			\begin{pmatrix}
+				1 & 0 & 0 & 0 \\0 & 0 & 0 & 0 \\0 & 0 & 0 & 0 \\0 & 0 & 0 & 0	
+			\end{pmatrix}\\\;\\
+			2^4 = 16 \text{ complex numbers}
+		\end{gather*}
+	}
+
+	\only<3>{
+		\setcounter{MaxMatrixCols}{8}
+		\begin{gather*}
+			n_{qubits} = 4\\\;\\
+			\ket{0000}\bra{0000}\\\;\\
+			\begin{pmatrix}
+				1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+				0& 0 & 0 & 0 & 0 & 0 & 0 & 0
+			\end{pmatrix}\\\;\\
+			2^8 = 64 \text{ complex numbers}
+		\end{gather*}
+	}
+
+	\only<4->{
+		\begin{gather*}
+			n_{qubits} = 300\\\;\\
+			\ket{0}^{\tensor_{300}}\bra{0}^{\tensor_{300}}\\\;\\
+			?????\\\;\\
+			\only<5->{2^{600} = 414951556888099295851240786369116115101244623224243689999\\
+			56573296906528114129081463997070489471037942881978866113007\\
+			89182395151075411775307886874834113963687061181803401509523685376\\\;\\
+			\text{\alert{Bigger than the number of atoms in the universe.}}}
+		\end{gather*}
+	}
+\end{frame}
+
+\againframe<4->[noframenumbering]{reasons}
+
+\begin{frame}{Ingredients}
+	\begin{itemize}
+		\item Abstract domain
+		\begin{itemize}
+			\item Abstraction function
+			\item Concretization function
+			\item Abstract operations
+		\end{itemize}
+		\item Assertions
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Density Matrix}
+	Instead of dealing with a state $\ket{\phi}$ in vector form, we use their \emph{density matrix}:
+	\begin{equation*}
+		\ket{\phi}\bra{\phi} \text{ (For a pure state)}		
+	\end{equation*}
+	\uncover<2->{
+		{\large \color{blue} Example:}
+		\begin{align*}
+			\ket{\beta_{00}} &= \frac{\ket{00} + \ket{11}}{\sqrt{2}}\\
+			\ket{\beta_{00}}\bra{\beta_{00}} &= \frac{1}{2}\begin{pmatrix}
+				1 & 0 & 0 & 1\\
+				0 & 0 & 0 & 0\\
+				0 & 0 & 0 & 0\\
+				1 & 0 & 0 & 1
+			\end{pmatrix}
+		\end{align*}
+	}
+\end{frame}
+
+\begin{frame}{Reduced Density Matrix}
+	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to consider a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
+	\begin{gather*}
+		A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\\
+		B = \mathbb{C}^{2^m}\times\mathbb{C}^{2^m}\\
+		AB = (\mathbb{C}^{2^n}\times\mathbb{C}^{2^n})\tensor(\mathbb{C}^{2^m}\times\mathbb{C}^{2^m})
+	\end{gather*}
+	\begin{align*}
+		Tr_B[\rho] &: AB \rightarrow A && Tr_A[\rho] : AB \rightarrow B\\
+		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
+	\end{align*}
+\end{frame}
+% Introduction
+% Reasons
+% Ingredients
+% Density matrices
+% Abstract state space
+% Galois connections
+% Abstract operations
+% Assertions
+% Conclusions
+
+\end{document}
+
+
+
+
+% n_{qubits} = 5\\
+% \ket{00000}\bra{00000}\\
+% % \begin{pmatrix}
+% % 	1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+% % 	0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0
+% % \end{pmatrix}

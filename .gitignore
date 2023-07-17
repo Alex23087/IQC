@@ -1,0 +1,7 @@
+*
+!.gitignore
+!Seminar
+!Seminar/*.tex
+!Seminar/images
+!Seminar/**/*.pdf
+!Seminar/**/*.sty
