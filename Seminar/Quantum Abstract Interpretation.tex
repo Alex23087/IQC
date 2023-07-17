@@ -22,6 +22,8 @@
 \def\mathunderline#1#2{\color{#1}\underline{{\color{black}#2}}\color{black}}
 \newcommand{\tensor}{\otimes}
 
+\newcommand{\bunder}[2]{\underbrace{#1}_{\text{\scriptsize\tabular[t]{@{}c@{}}#2\endtabular}}}
+
 
 
 
@@ -135,6 +137,8 @@
 	\end{itemize}
 \end{frame}
 
+\section{Preliminaries}
+\subsection{Density Matrix}
 \begin{frame}{Density Matrix}
 	Instead of dealing with a state $\ket{\phi}$ in vector form, we use their \emph{density matrix}:
 
@@ -172,6 +176,7 @@
 	
 \end{frame}
 
+\subsection{Reduced Density Matrix}
 \begin{frame}{Reduced Density Matrix}
 	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to focus our attention on a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
 	\begin{gather*}
@@ -248,15 +253,38 @@
 	\end{align*}
 	\;\\
 	\uncover<2->{
+		% A reduced density matrix can be obtained starting from two different states.\\\;\\
 		The partial traces of two different initial states can be equal.\\\;\\
 		Moreover, for a state $\rho\in A\tensor B$, even if we know $Tr_B[\rho]$ and $Tr_A[\rho]$, we cannot uniquely determine $\rho$. 
 	}
 \end{frame}
 
+\section{Abstract Domain}
 \begin{frame}{Abstract Domain}
 	\begin{gather*}
-		D = \mathbb{C}^{2^n}\tensor\mathbb{C}^{2^n},\quad S = (s_1, ..., s_m),\quad 1 \leq m \leq 2^n,\quad s_i \subseteq [n]\\
+	\mathcal{D} = \mathbb{C}^{2^n}\tensor\mathbb{C}^{2^n},\quad S = (s_1, ..., s_m),\quad 1 \leq m \leq 2^n,\quad s_i \subseteq [n]\\
 		\mathit{AbsDom}(S) = \left\{(P_{s_1}, ..., P_{s_m}) \mid P_{s_i} \text{ is a projection in } \mathbb{C}^{2^{|s_i|}}\tensor\mathbb{C}^{2^{|s_i|}}\right\}
+	\end{gather*}
+	Intuitively, given a tuple $S$ of sets of qubits, an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S)$ is a tuple of projections over those qubits.\\\;\\
+	{\color{blue} Special case:}
+	\begin{gather*}
+		T = ([n]) \implies \mathit{AbsDom}(T) = \mathcal{D}
+	\end{gather*}
+\end{frame}
+
+\begin{frame}{Fineness Relation}
+	Let $S = (s_1, ..., s_m)$ and $T = (t_1, ..., t_m)$ (with $1 \leq m \leq 2^n$), then:
+	\begin{equation*}
+		\bunder{S \trianglelefteq T}{``T is finer than S''} \triangleq \forall i \in [m].\; s_i \subseteq t_i
+	\end{equation*}
+\end{frame}
+
+\subsection{Abstraction and Concretization Functions}
+\begin{frame}{Abstraction Function}
+	\begin{gather*}
+		\alpha_{T \rightarrow S}: \mathit{AbsDom}(T) \rightarrow \mathit{AbsDom}(S)\\
+		\alpha_{T \rightarrow S}(Q_{t_1}, ..., Q_{t_{m}}) = (P_{s_1}, ..., P_{s_m})\\
+		P_{s_i} = \bigcap_{t_j.\; s_i \subseteq t_J} supp(Tr_{t_j \setminus s_i} Q_{t_j})
 	\end{gather*}
 \end{frame}
 
@@ -269,6 +297,10 @@
 % Abstract operations
 % Assertions
 % Conclusions
+
+%TODO: Underline that density matrices are projections
+%TODO: Add view of projections as linear subspaces (required by intersection between projections)
+%TODO: Complete explanation of partial traces underlining that v labels vectors of an orthonormal basis of the subspace we are tracing out
 
 \end{document}
 
