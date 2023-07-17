@@ -1,4 +1,4 @@
-\documentclass[11pt,svgnames,smaller,aspectratio=169,english]{beamer}
+\documentclass[11pt,svgnames,smaller,aspectratio=43,english]{beamer}
 
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
@@ -54,9 +54,9 @@
 \end{frame}
 
 \begin{frame}<1-4>[label=reasons]{Reasons}
-	The naive way to check properties of a program is to run it and \textbf<2>{observe} its behaviour.\\\;\\
+	The naive way to check properties of a program is to run it and \textbf<2->{observe} its behaviour.\\\;\\
 	\pause
-	\alert{We cannot \textbf{observe} the state of a quantum program!}\\\;\\
+	\alert{We \textbf{cannot observe} the state of a quantum program!}\\\;\\
 	\pause
 	Could \textbf{simulation} on a classical machine solve this issue?\\\;\\
 	\pause
@@ -92,8 +92,8 @@
 	\only<3>{
 		\setcounter{MaxMatrixCols}{8}
 		\begin{gather*}
-			n_{qubits} = 4\\\;\\
-			\ket{0000}\bra{0000}\\\;\\
+			n_{qubits} = 3\\\;\\
+			\ket{000}\bra{000}\\\;\\
 			\begin{pmatrix}
 				1 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
 				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -104,7 +104,7 @@
 				0& 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 				0& 0 & 0 & 0 & 0 & 0 & 0 & 0
 			\end{pmatrix}\\\;\\
-			2^8 = 64 \text{ complex numbers}
+			2^6 = 64 \text{ complex numbers}
 		\end{gather*}
 	}
 
@@ -112,10 +112,10 @@
 		\begin{gather*}
 			n_{qubits} = 300\\\;\\
 			\ket{0}^{\tensor_{300}}\bra{0}^{\tensor_{300}}\\\;\\
-			?????\\\;\\
-			\only<5->{2^{600} = 414951556888099295851240786369116115101244623224243689999\\
-			56573296906528114129081463997070489471037942881978866113007\\
-			89182395151075411775307886874834113963687061181803401509523685376\\\;\\
+			\only<4>{?????\\\;\\}
+			\only<5->{2^{600} = 41495155688809929585124078636911611510124462322424368\\9999
+			56573296906528114129081463997070489471037942881978866113\\007
+			891823951510754117753078868748341139636870611818034015095\\23685376\\\;\\
 			\text{\alert{Bigger than the number of atoms in the universe.}}}
 		\end{gather*}
 	}
@@ -137,14 +137,31 @@
 
 \begin{frame}{Density Matrix}
 	Instead of dealing with a state $\ket{\phi}$ in vector form, we use their \emph{density matrix}:
-	\begin{equation*}
-		\ket{\phi}\bra{\phi} \text{ (For a pure state)}		
-	\end{equation*}
+
+	\begin{columns}
+		\begin{column}[T]{0.35\textwidth}
+			\begin{equation*}
+				\rho_\phi = \ket{\phi}\bra{\phi} \text{ (For a pure state)}		
+			\end{equation*}
+		\end{column}
+		\begin{column}[T]{0.5\textwidth}
+			\begin{itemize}
+				\item positive semi-definite
+				\item $Tr(\rho) = 1$
+				\item projection ($P = P^\dagger = P^2$)
+			\end{itemize}
+		\end{column}
+	\end{columns}
+
+	\vspace*{1em}
+
 	\uncover<2->{
 		{\large \color{blue} Example:}
 		\begin{align*}
 			\ket{\beta_{00}} &= \frac{\ket{00} + \ket{11}}{\sqrt{2}}\\
-			\ket{\beta_{00}}\bra{\beta_{00}} &= \frac{1}{2}\begin{pmatrix}
+			\rho_{\beta_{00}} &= \ket{\beta_{00}}\bra{\beta_{00}} = \frac{1}{2} (\ket{00} + \ket{11})(\bra{00} + \bra{11})\\
+			&= \frac{1}{2} (\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11})\\
+			&= \frac{1}{2} \begin{pmatrix}
 				1 & 0 & 0 & 1\\
 				0 & 0 & 0 & 0\\
 				0 & 0 & 0 & 0\\
@@ -152,10 +169,11 @@
 			\end{pmatrix}
 		\end{align*}
 	}
+	
 \end{frame}
 
 \begin{frame}{Reduced Density Matrix}
-	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to consider a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
+	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to focus our attention on a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
 	\begin{gather*}
 		A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\\
 		B = \mathbb{C}^{2^m}\times\mathbb{C}^{2^m}\\
@@ -166,6 +184,82 @@
 		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
 	\end{align*}
 \end{frame}
+
+\begin{frame}{Example}
+	\begin{align*}
+		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) &&&
+		\rho_{\beta_{00}} = \frac{1}{2} \begin{pmatrix}
+			1 & 0 & 0 & 1\\
+			0 & 0 & 0 & 0\\
+			0 & 0 & 0 & 0\\
+			1 & 0 & 0 & 1
+		\end{pmatrix}
+	\end{align*}
+	\begin{align*}
+		Tr_B[\rho_{\beta_{00}}] =& (I_2\tensor\bra{0})\rho_{\beta_{00}}(I_2\tensor\ket{0}) + (I_2\tensor\bra{1})\rho_{\beta_{00}}(I_2\tensor\ket{1})\\
+		\only<1>{
+			=& \frac{1}{2} \begin{pmatrix}
+				1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0
+			\end{pmatrix}\begin{pmatrix}
+				1 & 0 & 0 & 1\\
+				0 & 0 & 0 & 0\\
+				0 & 0 & 0 & 0\\
+				1 & 0 & 0 & 1
+			\end{pmatrix}\begin{pmatrix}
+				1 & 0 \\ 0 & 0 \\ 0 & 1 \\ 0 & 0
+			\end{pmatrix}+\\
+			&\frac{1}{2} \begin{pmatrix}
+				0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1
+			\end{pmatrix}\begin{pmatrix}
+				1 & 0 & 0 & 1\\
+				0 & 0 & 0 & 0\\
+				0 & 0 & 0 & 0\\
+				1 & 0 & 0 & 1
+			\end{pmatrix}\begin{pmatrix}
+				0 & 0 \\ 1 & 0 \\ 0 & 0 \\ 0 & 1
+			\end{pmatrix}
+		}
+		\uncover<2->{
+			=& \frac{1}{2} \begin{pmatrix}
+				1 & 0 \\ 0 & 0
+			\end{pmatrix} + \frac{1}{2} \begin{pmatrix}
+				0 & 0 \\ 0 & 1
+			\end{pmatrix}\\
+		}
+		\uncover<3->{
+			=& \frac{1}{2} \begin{pmatrix}
+				1 & 0 \\ 0 & 1
+			\end{pmatrix}\\
+		}
+		\uncover<4->{
+			=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}\;\\\;\\\;\\\;\\
+		}
+	\end{align*}
+\end{frame}
+
+\begin{frame}{Loss of precision}
+	\alert{Computing a reduced density matrix \textbf{discards information}!}
+	\begin{align*}
+		\rho_{\beta_{00}} =& \frac{\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11}}{2} & \text{(Pure state)}\\
+		\rho_2 =& \frac{\ket{00}\bra{00} + \ket{01}\bra{01} + \ket{10}\bra{10} + \ket{11}\bra{11}}{4} & \text{(Mixed state)}\\\;\\
+		\uncover<2->{
+			&Tr_B[\rho_{\beta_{00}}] = \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2} = Tr_B[\rho_2]
+		}
+	\end{align*}
+	\;\\
+	\uncover<2->{
+		The partial traces of two different initial states can be equal.\\\;\\
+		Moreover, for a state $\rho\in A\tensor B$, even if we know $Tr_B[\rho]$ and $Tr_A[\rho]$, we cannot uniquely determine $\rho$. 
+	}
+\end{frame}
+
+\begin{frame}{Abstract Domain}
+	\begin{gather*}
+		D = \mathbb{C}^{2^n}\tensor\mathbb{C}^{2^n},\quad S = (s_1, ..., s_m),\quad 1 \leq m \leq 2^n,\quad s_i \subseteq [n]\\
+		\mathit{AbsDom}(S) = \left\{(P_{s_1}, ..., P_{s_m}) \mid P_{s_i} \text{ is a projection in } \mathbb{C}^{2^{|s_i|}}\tensor\mathbb{C}^{2^{|s_i|}}\right\}
+	\end{gather*}
+\end{frame}
+
 % Introduction
 % Reasons
 % Ingredients
