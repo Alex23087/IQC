@@ -140,7 +140,7 @@
 \section{Preliminaries}
 \subsection{Density Matrix}
 \begin{frame}{Density Matrix}
-	Instead of dealing with a state $\ket{\phi}$ in vector form, we use their \emph{density matrix}:
+	Instead of dealing with a state $\ket{\phi}$ in vector form, we use its \emph{density matrix}:
 
 	\begin{columns}
 		\begin{column}[T]{0.35\textwidth}
@@ -180,65 +180,94 @@
 \begin{frame}{Reduced Density Matrix}
 	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to focus our attention on a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
 	\begin{gather*}
-		A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\\
+		A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\quad
 		B = \mathbb{C}^{2^m}\times\mathbb{C}^{2^m}\\
 		AB = (\mathbb{C}^{2^n}\times\mathbb{C}^{2^n})\tensor(\mathbb{C}^{2^m}\times\mathbb{C}^{2^m})
 	\end{gather*}
+	\vspace*{-2em}
 	\begin{align*}
-		Tr_B[\rho] &: AB \rightarrow A && Tr_A[\rho] : AB \rightarrow B\\
+		&Tr_B[\rho] : AB \rightarrow A && Tr_A[\rho] : AB \rightarrow B\\
+		&Tr_B[\alpha\tensor\beta] = \alpha \cdot Tr(\beta) &&
+		Tr_A[\alpha\tensor\beta] = Tr(\alpha) \cdot \beta
+	\end{align*}
+	\vspace*{-2em}
+	\begin{gather*}
+		Tr_S[\rho + \sigma] = Tr_S[\rho] + Tr_S[\sigma] \text{ (Linearity)}
+	\end{gather*}
+	\begin{center}
+		Alternatively:
+	\end{center}
+	\vspace*{-2em}
+	\begin{align*}
 		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
 	\end{align*}
+	\begin{center}
+		Where $v$ labels vectors of an orthonormal basis of the subspace we are tracing out.		
+	\end{center}
 \end{frame}
 
+% \begin{frame}{Example}
+% 	\begin{align*}
+% 		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) &&&
+% 		\rho_{\beta_{00}} = \frac{1}{2} \begin{pmatrix}
+% 			1 & 0 & 0 & 1\\
+% 			0 & 0 & 0 & 0\\
+% 			0 & 0 & 0 & 0\\
+% 			1 & 0 & 0 & 1
+% 		\end{pmatrix}
+% 	\end{align*}
+% 	\begin{align*}
+% 		Tr_B[\rho_{\beta_{00}}] =& (I_2\tensor\bra{0})\rho_{\beta_{00}}(I_2\tensor\ket{0}) + (I_2\tensor\bra{1})\rho_{\beta_{00}}(I_2\tensor\ket{1})\\
+% 		\only<1>{
+% 			=& \frac{1}{2} \begin{pmatrix}
+% 				1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0
+% 			\end{pmatrix}\begin{pmatrix}
+% 				1 & 0 & 0 & 1\\
+% 				0 & 0 & 0 & 0\\
+% 				0 & 0 & 0 & 0\\
+% 				1 & 0 & 0 & 1
+% 			\end{pmatrix}\begin{pmatrix}
+% 				1 & 0 \\ 0 & 0 \\ 0 & 1 \\ 0 & 0
+% 			\end{pmatrix}+\\
+% 			&\frac{1}{2} \begin{pmatrix}
+% 				0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1
+% 			\end{pmatrix}\begin{pmatrix}
+% 				1 & 0 & 0 & 1\\
+% 				0 & 0 & 0 & 0\\
+% 				0 & 0 & 0 & 0\\
+% 				1 & 0 & 0 & 1
+% 			\end{pmatrix}\begin{pmatrix}
+% 				0 & 0 \\ 1 & 0 \\ 0 & 0 \\ 0 & 1
+% 			\end{pmatrix}
+% 		}
+% 		\uncover<2->{
+% 			=& \frac{1}{2} \begin{pmatrix}
+% 				1 & 0 \\ 0 & 0
+% 			\end{pmatrix} + \frac{1}{2} \begin{pmatrix}
+% 				0 & 0 \\ 0 & 1
+% 			\end{pmatrix}\\
+% 		}
+% 		\uncover<3->{
+% 			=& \frac{1}{2} \begin{pmatrix}
+% 				1 & 0 \\ 0 & 1
+% 			\end{pmatrix}\\
+% 		}
+% 		\uncover<4->{
+% 			=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}\;\\\;\\\;\\\;\\
+% 		}
+% 	\end{align*}
+% \end{frame}
+
 \begin{frame}{Example}
+	\begin{gather*}
+		A = C^2\times C^2\quad B = C^2\times C^2\quad AB = A\tensor B\\
+		\rho_{\beta_{00}} = \ket{\beta_{00}}\bra{\beta_{00}} = \frac{\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11}}{2}
+	\end{gather*}
 	\begin{align*}
-		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) &&&
-		\rho_{\beta_{00}} = \frac{1}{2} \begin{pmatrix}
-			1 & 0 & 0 & 1\\
-			0 & 0 & 0 & 0\\
-			0 & 0 & 0 & 0\\
-			1 & 0 & 0 & 1
-		\end{pmatrix}
-	\end{align*}
-	\begin{align*}
-		Tr_B[\rho_{\beta_{00}}] =& (I_2\tensor\bra{0})\rho_{\beta_{00}}(I_2\tensor\ket{0}) + (I_2\tensor\bra{1})\rho_{\beta_{00}}(I_2\tensor\ket{1})\\
-		\only<1>{
-			=& \frac{1}{2} \begin{pmatrix}
-				1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0
-			\end{pmatrix}\begin{pmatrix}
-				1 & 0 & 0 & 1\\
-				0 & 0 & 0 & 0\\
-				0 & 0 & 0 & 0\\
-				1 & 0 & 0 & 1
-			\end{pmatrix}\begin{pmatrix}
-				1 & 0 \\ 0 & 0 \\ 0 & 1 \\ 0 & 0
-			\end{pmatrix}+\\
-			&\frac{1}{2} \begin{pmatrix}
-				0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1
-			\end{pmatrix}\begin{pmatrix}
-				1 & 0 & 0 & 1\\
-				0 & 0 & 0 & 0\\
-				0 & 0 & 0 & 0\\
-				1 & 0 & 0 & 1
-			\end{pmatrix}\begin{pmatrix}
-				0 & 0 \\ 1 & 0 \\ 0 & 0 \\ 0 & 1
-			\end{pmatrix}
-		}
-		\uncover<2->{
-			=& \frac{1}{2} \begin{pmatrix}
-				1 & 0 \\ 0 & 0
-			\end{pmatrix} + \frac{1}{2} \begin{pmatrix}
-				0 & 0 \\ 0 & 1
-			\end{pmatrix}\\
-		}
-		\uncover<3->{
-			=& \frac{1}{2} \begin{pmatrix}
-				1 & 0 \\ 0 & 1
-			\end{pmatrix}\\
-		}
-		\uncover<4->{
-			=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}\;\\\;\\\;\\\;\\
-		}
+		\hspace*{-1cm}
+		Tr_B[\rho_{\beta_{00}}] =& \uncover<2->{\frac{\left(Tr_B[\ket{00}\bra{00}] + Tr_b[\ket{00}\bra{11}] + Tr_b[\ket{11}\bra{00}] + Tr_b[\ket{11}\bra{11}]\right)}{2}}\\
+		\uncover<3->{=& \frac{(\ket{0}\bra{0} \cdot \braket{0|0}) + (\ket{0}\bra{1} \cdot \braket{0|1}) + (\ket{1}\bra{0} \cdot \braket{1|0}) + (\ket{1}\bra{1} \cdot \braket{1|1})}{2}}\\
+		\uncover<4->{=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}}
 	\end{align*}
 \end{frame}
 
@@ -259,6 +288,13 @@
 	}
 \end{frame}
 
+\begin{frame}{Linear Subspaces} %TODO: Work on this
+	Each projection $P$ corresponds to a linear subspace $\{v \mid Pv = v\}$.\\
+	\;\\
+	The support of a matrix $P$	is the subspace orthogonal to its kernel, i.e., the set $\{v \mid Pv \neq 0\}$.
+	\;\\
+\end{frame}
+
 \section{Abstract Domain}
 \begin{frame}{Abstract Domain}
 	\begin{gather*}
@@ -272,19 +308,99 @@
 	\end{gather*}
 \end{frame}
 
-\begin{frame}{Fineness Relation}
+\begin{frame}{Fineness Relation} %TODO: Explain why finer
 	Let $S = (s_1, ..., s_m)$ and $T = (t_1, ..., t_m)$ (with $1 \leq m \leq 2^n$), then:
 	\begin{equation*}
 		\bunder{S \trianglelefteq T}{``T is finer than S''} \triangleq \forall i \in [m].\; s_i \subseteq t_i
 	\end{equation*}
+	$T$ is ``more concrete'' than S.\\\;\\
+	% Minimal elements: tuples $(a_1, ... a_m)$ where all $a_i$ are singleton sets.\\
+	Least element: $\bot = (\emptyset, ..., \emptyset)$.\\
+	Greatest element: $\top = ([n], ... [n])$.\\
+	$\mathit{AbsDom}(\top)$ corresponds to a state so abstract that it holds no information at all.\\ %TODO: Maybe remove?
+	$\mathit{AbsDom}(\top)$ corresponds to tuples where every projection is a concrete state.
 \end{frame}
 
 \subsection{Abstraction and Concretization Functions}
 \begin{frame}{Abstraction Function}
+	\vspace*{-2em}
 	\begin{gather*}
-		\alpha_{T \rightarrow S}: \mathit{AbsDom}(T) \rightarrow \mathit{AbsDom}(S)\\
+		S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
+		\alpha_{T \rightarrow S}: \mathit{AbsDom}(T) \rightarrow \mathit{AbsDom}(S)
+	\end{gather*}
+	\vspace*{-2em}
+	\begin{gather*}
 		\alpha_{T \rightarrow S}(Q_{t_1}, ..., Q_{t_{m}}) = (P_{s_1}, ..., P_{s_m})\\
-		P_{s_i} = \bigcap_{t_j.\; s_i \subseteq t_J} supp(Tr_{t_j \setminus s_i} Q_{t_j})
+		P_{s_i} = \bigcap_{t_j.\; s_i \subseteq t_J} supp(Tr_{t_j \setminus s_i} [Q_{t_j}])
+	\end{gather*}
+	\\\vspace*{1em}
+	Given an abstract state $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$, we want to compute $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$. For each $i\in [m]$:
+	\begin{enumerate}
+		\item Find all $Q_{t_j}$s such that $s_i \subseteq t_j$. We know that at least one exists (for $j=i$), since $S \trianglelefteq T$.
+		\item For each $Q_{t_j}$ found, trace out the bits in $t_j$ that are not in $s_i$.
+		\item Compute the support of the traced matrices (to preserve the structure of projections).
+		\item Compute the intersection of the supports.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Concretization Function}
+	\vspace*{-2em}
+	\begin{gather*}
+		S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
+		\gamma_{S \rightarrow T}: \mathit{AbsDom}(S) \rightarrow \mathit{AbsDom}(T)
+	\end{gather*}
+	\vspace*{-2em}
+	\begin{gather*}
+		\gamma_{S \rightarrow T}(P_{s_1}, ..., P_{s_m}) = (Q_{t_1}, ..., Q_{t_{m}})\\
+		Q_{t_j} = \bigcap_{s_i.\; s_i \subseteq t_J} P_{s_i} \tensor I_{t_j \setminus s_i}
+	\end{gather*}
+	\\\vspace*{1em}
+	Given an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$, we want to compute $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$. For each $j\in [m]$:
+	\begin{enumerate}
+		\item Find all $P_{s_i}$s such that $s_i \subseteq t_j$. We know at least one exists (for $i=j$), since $S \trianglelefteq T$.
+		\item Extend the projection to the space of all qubits in $t_j$, by computing the tensor product with the identity matrix.
+		\item Compute the intersection of the extended projections.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Order Relation on Abstract States}
+	\begin{gather*}
+		1 \leq m \leq 2^n,\quad S = (s_1, ... s_m),\quad \forall i \in [m].\; s_i \subseteq [n]\\
+		\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m}),\quad \overline{\tau} \in \mathit{AbsDom}(S) = (Q_{s_1}, ..., Q_{s_m})
+	\end{gather*}
+	\begin{gather*}
+		\overline{\sigma} \sqsubseteq \overline{\tau} \triangleq \forall i \in [m].\; \hspace*{-1.9em}\bunder{P_{s_i} \subseteq Q_{s_i}}{Subspace interpretation\\of projections}
+	\end{gather*}
+\end{frame}
+
+\begin{frame}{Monotonicity}
+	\begin{gather*}
+		S \trianglerighteq T\\
+		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\; \overline{\sigma} \sqsubseteq \overline{\tau} \implies \alpha_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\alpha_{%TODO: Continue here
+		}
+	\end{gather*}
+\end{frame}
+
+%MARK: Extra
+\begin{frame}{Computing the Projection of a Support}
+	To compute a projection corresponding to $supp(A)$, we:
+	\begin{enumerate}
+		\item take the rows $\{r_1, ..., r_n\}$ of A;
+		\item extract an orthonormal set of vectors $\{b_1, ..., b_n\}$ that span the same subspace as the rows;
+		\item create the matrix $B = \begin{pmatrix}
+			b_1 \\ ... \\ b_n
+		\end{pmatrix}$;
+		\item return $BB^\dagger$.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Computing the Projection of an Intersection}
+
+    % //    (I \otimes ... \otimes I) -
+    % //    supp( k(I \otimes I \times I) - (l.0 + ... + l.(k-1)) )
+	\begin{gather*}
+		\{P_1, ..., P_k\},\quad \forall i\in [k].\; P_i = C^n \times C^n\\
+		\bigcap_{i\in [k]} P_i = I_n - supp(kI_n - \sum_{i\in [k]} P_i)
 	\end{gather*}
 \end{frame}
 
@@ -298,9 +414,11 @@
 % Assertions
 % Conclusions
 
+%TODO: Check computations remembering that qubits are indexed rtl
 %TODO: Underline that density matrices are projections
-%TODO: Add view of projections as linear subspaces (required by intersection between projections)
-%TODO: Complete explanation of partial traces underlining that v labels vectors of an orthonormal basis of the subspace we are tracing out
+%TODO: Complete explanation of partial traces
+%TODO: Maybe remove alternative formula for partial traces
+%TODO: Go more into detail with the Linear Subspace frame
 
 \end{document}
 
