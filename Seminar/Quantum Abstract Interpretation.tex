@@ -389,7 +389,7 @@
 		S \trianglelefteq T\\
 		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}(T).\\
 		\hspace*{-3em}
-		\left(\begin{array}{@{}ll@{}@{}}
+		\left(\begin{array}{@{}cc@{}@{}}
 			\overline{\tau}\sqsubseteq \gamma_{S \rightarrow T}(\overline{\sigma}) \implies \alpha_{T\rightarrow S}(\overline{\tau})\sqsubseteq \overline{\sigma} \\
 			\land\\
 			\left(\exists \overline{\rho}\in\mathit{AbsDom}([n]^m).\;\overline{\tau} = \alpha_{[n]^m\rightarrow T}(\overline{\rho})\right) \;\implies\; \overline{\tau}\sqsubseteq \gamma_{S\rightarrow T}(\overline{\sigma}) \iff \alpha_{T\rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma} 
@@ -418,6 +418,122 @@
 \end{frame}
 
 \subsection{Assertions}
+\begin{frame}{Assertions}
+	We want to check that a state of a program lies in the span of two vectors.\\
+	We define an assertion as:
+	\begin{equation*}
+		A = span\{v_1 = \ket{a_1}...\ket{a_n},\;\; v_2 = \ket{b_1}...\ket{b_n}\}
+	\end{equation*}
+	And a projection $proj(A)$ onto this subspace, such that:
+	\begin{equation*}
+		proj(A)v_1 = v_1 \qquad proj(A)v_2 = v_2
+	\end{equation*}
+\end{frame}
+
+\begin{frame}{Connectivity}
+	\begin{gather*}
+		S = (s_1, ..., s_m)\\
+		S \text{ is connected} \triangleq \forall k \in [n-1].\; \exists r \in [m].\; k \in s_r \land k+1 \in s_r
+	\end{gather*}
+
+	\uncover<2->{
+		{\color{blue} \large Example:}
+		\begin{columns}
+			\begin{column}[T]{0.7\linewidth}
+				\begin{gather*}
+					n = 5,\quad m = 3\\
+					S = ({\color<5-7>{blue}\{0, 2, 3\}}, {\color<3-7>{green}\{0, 1, 2\}}, {\color<6-7>{red}\{3, 4, 5\}})
+				\end{gather*}
+			\end{column}
+			\begin{column}[T]{0.3\linewidth}
+				\begin{gather*}
+					\only<3>{0,1 \in \{0,1,2\}}
+					\only<4>{1,2 \in \{0,1,2\}}
+					\only<5>{2,3 \in \{0,2,3\}}
+					\only<6>{3,4 \in \{3,4,5\}}
+					\only<7>{4,5 \in \{3,4,5\}}
+				\end{gather*}
+			\end{column}
+		\end{columns}
+	}
+	\vspace*{1em}
+	\uncover<8->{
+		For an assertion $A$, if $S$ is connected, then:
+		\begin{equation*}
+			proj(A) = \gamma_{S\rightarrow [n]^m}(\alpha_{[n]^m \rightarrow S}(proj(A)))
+		\end{equation*}
+	}
+\end{frame}
+
+\begin{frame}{Assertion Checking}
+	Given an assertion $A$, if the final state of a computation is $v$ and the final abstract state of the abstract interpretation is $\overline{v} \in \mathit{AbsDom}(S)$, with $S$ connected, then:
+	\begin{gather*}
+		\overline{v} \sqsubseteq \alpha_{[n]^m \rightarrow S}(proj(A)) \quad\implies\quad v \in A 
+	\end{gather*}  
+\end{frame}
+
+\begin{frame}{Choice of Tuple S}
+	Fundamental choice for the shape of the abstract domain and, in turn, the success of the analysis.\\
+	% \begin{columns}
+	% 	\begin{column}[T]{0.3\textwidth}
+	% 		\begin{gather*}
+	% 			\text{Less, smaller sets}\\
+	% 			\Downarrow\\
+	% 			\text{\tabular{@{}cc@{}}
+	% 				Less computational cost\\and memory footprint
+	% 			\endtabular}
+	% 		\end{gather*}
+	% 	\end{column}
+	% 	\begin{column}[T]{0.3\textwidth}
+	% 		\begin{gather*}
+	% 			\text{More, bigger sets}\\
+	% 			\Downarrow\\
+	% 			\text{\tabular{@{}cc@{}}
+	% 				Less computational cost\\and memory footprint
+	% 			\endtabular}
+	% 		\end{gather*}
+	% 	\end{column}
+	% \end{columns}
+	\vspace*{1em}
+	\uncover<2->{
+	\begin{tabular}{| c | c | c |}
+		\hline
+		Type of $S$ & Pros & Cons\\
+		\hline
+		Less, smaller sets & {\begin{tabular}{@{}c@{}}Less computational cost\\and memory footprint\end{tabular}} & Less precision\\
+		\hline
+		More, bigger sets & {\begin{tabular}{@{}c@{}}More computational cost\\and memory footprint\end{tabular}} & More precision\\
+		\hline
+	\end{tabular}\\
+	}
+	\vspace*{1em}
+	\uncover<3->{
+	{\large \color{blue} Example:}\\
+	\begin{itemize}
+		\item $S_1 = $ all $\begin{pmatrix}
+			n \\ k
+		\end{pmatrix}$ combinations of $k$ qubits
+		\item $S_2 = $ sets that contain qubits used by at least two 3-qubit gates
+		\item ...
+	\end{itemize}
+	}
+\end{frame}
+
+\begin{frame}{Assertion Checking Example}
+	We want to check (partial) correctness of Grover's algorithm.\\\;\\
+
+	{\large \color{blue} Grover's algorithm steps:}
+	\begin{enumerate}
+		\item Prepare the initial state $\ket{\phi}^{(0)}$
+		\item Repeat approx. $\frac{\pi}{4}\sqrt{N}$ times $\ket{\phi}^{(t+1)} = G\ket{\phi}^{(t)}$.
+		\item Measure in the computational basis.
+	\end{enumerate}\;\\
+
+	With this abstract interpretation framework, we can prove the loop invariant:
+	\begin{equation*}
+		\ket{\phi}^{(t)} \in A = span\{\ket{\beta}, \ket{\phi}\}
+	\end{equation*}
+\end{frame}
 
 %MARK: Extra
 \section*{Extra material}
@@ -443,6 +559,20 @@
 	\end{gather*}
 \end{frame}
 
+\begin{frame}{Computing the Assertion Projection}
+	Given two vectors
+	\begin{gather*}
+		v_1 = \ket{a_1}...\ket{a_n}\\
+		v_2 = \ket{b_1}...\ket{b_n}
+	\end{gather*}
+	\begin{enumerate}
+		\item Create a matrix $P = \begin{pmatrix}
+			v_1^T \\ v_2^T \\ \mathbf{0} \\ ... \\ \mathbf{0}
+		\end{pmatrix}$
+		\item Return $supp(P)$
+	\end{enumerate}
+\end{frame}
+
 % Introduction
 % Reasons
 % Ingredients
@@ -458,6 +588,7 @@
 %TODO: Complete explanation of partial traces
 %TODO: Maybe remove alternative formula for partial traces
 %TODO: Go more into detail with the Linear Subspace frame
+%TODO: Add theorems 6.1 and 6.2
 
 \end{document}
 
