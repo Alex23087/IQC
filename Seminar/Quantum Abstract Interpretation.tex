@@ -24,6 +24,8 @@
 
 \newcommand{\bunder}[2]{\underbrace{#1}_{\text{\scriptsize\tabular[t]{@{}c@{}}#2\endtabular}}}
 
+\renewcommand{\implies}{\Rightarrow}
+\renewcommand{\iff}{\Leftrightarrow}
 
 
 
@@ -51,6 +53,7 @@
 	\tableofcontents
 \end{frame}
 
+\section{Introduction}
 \begin{frame}{Introduction}
 	As quantum computing advances, we would like to have some means to prove correctness properties on quantum programs, \emph{especially} since quantum programming is counterintuitive.\\
 \end{frame}
@@ -375,13 +378,49 @@
 
 \begin{frame}{Monotonicity}
 	\begin{gather*}
-		S \trianglerighteq T\\
-		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\; \overline{\sigma} \sqsubseteq \overline{\tau} \implies \alpha_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\alpha_{%TODO: Continue here
-		}
+		S \trianglelefteq T\\
+		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\quad \overline{\sigma} \sqsubseteq \overline{\tau} \implies \alpha_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\alpha_{T\rightarrow S}(\overline{\tau})\\
+		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\quad \overline{\sigma} \sqsubseteq \overline{\tau} \implies \gamma_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\gamma_{T\rightarrow S}(\overline{\tau})
 	\end{gather*}
 \end{frame}
 
+\begin{frame}{Galois connection}
+	\begin{gather*}
+		S \trianglelefteq T\\
+		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}(T).\\
+		\hspace*{-3em}
+		\left(\begin{array}{@{}ll@{}@{}}
+			\overline{\tau}\sqsubseteq \gamma_{S \rightarrow T}(\overline{\sigma}) \implies \alpha_{T\rightarrow S}(\overline{\tau})\sqsubseteq \overline{\sigma} \\
+			\land\\
+			\left(\exists \overline{\rho}\in\mathit{AbsDom}([n]^m).\;\overline{\tau} = \alpha_{[n]^m\rightarrow T}(\overline{\rho})\right) \;\implies\; \overline{\tau}\sqsubseteq \gamma_{S\rightarrow T}(\overline{\sigma}) \iff \alpha_{T\rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma} 
+		  \end{array}\right)
+	\end{gather*}
+
+	\begin{gather*}
+		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}([n]^m).\\
+		\overline{\tau} \sqsubseteq \gamma_{S\rightarrow [n]^m}(\overline{\sigma}) \quad\iff\quad \alpha_{[n]^m \rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma}
+	\end{gather*}
+\end{frame}
+
+\subsection{Abstract Operations}
+\begin{frame}{Abstract Operations}
+	Operations on the concrete domain are unitary operators $U$.\\
+	To apply them to a concrete state $\rho$ we compute $U\rho U^\dagger$.\\
+	We want to define $U^\sharp: \mathit{AbsDom}(S) \rightarrow \mathit{AbsDom}(S)$.\\
+	\vspace*{1em}
+	Let $T = (t_1, ..., t_m)$ s.t. $t_i = s_i \cup s_U$, where $s_U$ denotes the set of qubits that matrix $U$ acts on.\\
+
+	Let $U^{cg}(\overline{\sigma}) = (UT_{t_1}U^\dagger, ..., UT_{t_m}U^\dagger)$, then
+	\begin{equation*}
+		U^\sharp = \alpha_{T \rightarrow S} \circ U^{cg} \circ \gamma_{S \rightarrow T}
+	\end{equation*}
+	We first concretize to a new, finer domain with sufficient precision to accurately represent the operation, then abstract back to the original abstract domain to keep the representation more compact.
+\end{frame}
+
+\subsection{Assertions}
+
 %MARK: Extra
+\section*{Extra material}
 \begin{frame}{Computing the Projection of a Support}
 	To compute a projection corresponding to $supp(A)$, we:
 	\begin{enumerate}
@@ -400,7 +439,7 @@
     % //    supp( k(I \otimes I \times I) - (l.0 + ... + l.(k-1)) )
 	\begin{gather*}
 		\{P_1, ..., P_k\},\quad \forall i\in [k].\; P_i = C^n \times C^n\\
-		\bigcap_{i\in [k]} P_i = I_n - supp(kI_n - \sum_{i\in [k]} P_i)
+		\bigcap_{i\in [k]} P_i \triangleq I_n - supp(kI_n - \sum_{i\in [k]} P_i)
 	\end{gather*}
 \end{frame}
 
