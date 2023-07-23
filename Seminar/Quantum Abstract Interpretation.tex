@@ -3,11 +3,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage{tikz}
 \usetikzlibrary{graphs,graphdrawing,arrows.meta,positioning,quotes,external,chains,graphs.standard}
-\tikzexternalize[prefix=tikzfigures/]
+%\tikzexternalize[prefix=tikzfigures/]
 \usegdlibrary{trees}
 \usepackage{xcolor}
 \usepackage{subfig}
 \usepackage{braket}
+\usepackage{spot}
 
 \usetheme{UniPi}
 \setbeamercovered{transparent=0}
@@ -49,15 +50,19 @@
 
 % ------------------ CHANGE FROM HERE ------------------
 
-\begin{frame}{Roadmap}
-	\tableofcontents
-\end{frame}
+\AtBeginSection[]
+{
+	\begin{frame}{Roadmap}
+		\tableofcontents[currentsection]
+	\end{frame}
+}
 
 \section{Introduction}
 \begin{frame}{Introduction}
 	As quantum computing advances, we would like to have some means to prove correctness properties on quantum programs, \emph{especially} since quantum programming is counterintuitive.\\
 \end{frame}
 
+\subsection{Reasons}
 \begin{frame}<1-4>[label=reasons]{Reasons}
 	The naive way to check properties of a program is to run it and \textbf<2->{observe} its behaviour.\\\;\\
 	\pause
@@ -65,7 +70,11 @@
 	\pause
 	Could \textbf{simulation} on a classical machine solve this issue?\\\;\\
 	\pause
-	\alert{No: \textbf{exponential} space and time cost.}\\\;\\\;\\
+	\alert{No: \textbf{exponential} space and time cost.}\\\;\\
+	\pause
+	Static checking of programs by hand?\\\;\\
+	\pause
+	{\color{orange} Yes, but time consuming. Needs to be adapted to the specific program.}\\\;\\
 	\pause
 	\begin{center}
 		\large \color{blue} Solution: abstract interpretation
@@ -128,15 +137,34 @@
 
 \againframe<4->[noframenumbering]{reasons}
 
+\subsection{Abstract Interpretation}
+\begin{frame}{What is abstract interpretation?}
+	Instead of considering the \textbf{concrete domain}, we restrict our analysis to a \textbf{more coarse domain}, an \textbf{abstract domain}.\\\;\\
+	\pause
+	The abstract domain we consider should be:
+	\pause
+	\begin{center}
+		\begin{columns}
+			\begin{column}[T]{0.95\textwidth}
+				\begin{itemize}[<+->]
+					\setlength{\itemindent}{4em}
+					\item[fine enough] to capture the information we are interested in (e.g. the state of the quantum system belongs to the span of two vectors)
+					\item[as coarse as possible] to discard information we are not interested in, and thus be substantially more efficient to be analyzed
+				\end{itemize}
+			\end{column}
+		\end{columns}
+	\end{center}
+\end{frame}
+
 \begin{frame}{Ingredients}
-	\begin{itemize}
+	\begin{itemize}[<+->]
 		\item Abstract domain
-		\begin{itemize}
-			\item Abstraction function
-			\item Concretization function
-			\item Abstract operations
+		\begin{itemize}[<+->]
+			\item Abstraction function: from more concrete to more abstract domain
+			\item Concretization function: from more abstract to more concrete domain
+			\item Abstract operations: to represent concrete operations in the abstract domain
 		\end{itemize}
-		\item Assertions
+		\item Assertions: properties we can prove with abstract interpretation
 	\end{itemize}
 \end{frame}
 
@@ -162,18 +190,25 @@
 
 	\vspace*{1em}
 
-	\uncover<2->{
+	\uncover<+->{}
+	\uncover<+->{
 		{\large \color{blue} Example:}
 		\begin{align*}
 			\ket{\beta_{00}} &= \frac{\ket{00} + \ket{11}}{\sqrt{2}}\\
-			\rho_{\beta_{00}} &= \ket{\beta_{00}}\bra{\beta_{00}} = \frac{1}{2} (\ket{00} + \ket{11})(\bra{00} + \bra{11})\\
-			&= \frac{1}{2} (\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11})\\
-			&= \frac{1}{2} \begin{pmatrix}
-				1 & 0 & 0 & 1\\
-				0 & 0 & 0 & 0\\
-				0 & 0 & 0 & 0\\
-				1 & 0 & 0 & 1
-			\end{pmatrix}
+			\rho_{\beta_{00}} &= \ket{\beta_{00}}\bra{\beta_{00}}\uncover<+->{
+				= \frac{1}{2} (\ket{00} + \ket{11})(\bra{00} + \bra{11})\\
+			}
+			\uncover<+->{
+				&= \frac{1}{2} (\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11})\\
+			}
+			\uncover<+->{
+				&= \frac{1}{2} \begin{pmatrix}
+					1 & 0 & 0 & 1\\
+					0 & 0 & 0 & 0\\
+					0 & 0 & 0 & 0\\
+					1 & 0 & 0 & 1
+				\end{pmatrix}
+			}
 		\end{align*}
 	}
 	
@@ -181,32 +216,32 @@
 
 \subsection{Reduced Density Matrix}
 \begin{frame}{Reduced Density Matrix}
-	Suppose we have a composite quantum system $AB = A \tensor B$, and we want to focus our attention on a state $\ket{\phi} \in AB$ with respect to the subsystem $A$.
-	\begin{gather*}
-		A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\quad
-		B = \mathbb{C}^{2^m}\times\mathbb{C}^{2^m}\\
-		AB = (\mathbb{C}^{2^n}\times\mathbb{C}^{2^n})\tensor(\mathbb{C}^{2^m}\times\mathbb{C}^{2^m})
-	\end{gather*}
+	\uncover<+->{
+		Suppose we have a composite quantum system $AB = A \tensor B$, and we want to focus our attention on a state $\ket{\phi} \in AB$ with respect to subsystem $A$.
+	}
+	\uncover<+->{
+		\begin{gather*}
+			A = \mathbb{C}^{2^n}\times\mathbb{C}^{2^n}\quad
+			B = \mathbb{C}^{2^m}\times\mathbb{C}^{2^m}\\
+			AB = (\mathbb{C}^{2^n}\times\mathbb{C}^{2^n})\tensor(\mathbb{C}^{2^m}\times\mathbb{C}^{2^m})
+		\end{gather*}
+	}
 	\vspace*{-2em}
-	\begin{align*}
-		&Tr_B[\rho] : AB \rightarrow A && Tr_A[\rho] : AB \rightarrow B\\
-		&Tr_B[\alpha\tensor\beta] = \alpha \cdot Tr(\beta) &&
-		Tr_A[\alpha\tensor\beta] = Tr(\alpha) \cdot \beta
-	\end{align*}
-	\vspace*{-2em}
-	\begin{gather*}
-		Tr_S[\rho + \sigma] = Tr_S[\rho] + Tr_S[\sigma] \text{ (Linearity)}
-	\end{gather*}
-	\begin{center}
-		Alternatively:
-	\end{center}
-	\vspace*{-2em}
-	\begin{align*}
-		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
-	\end{align*}
-	\begin{center}
-		Where $v$ labels vectors of an orthonormal basis of the subspace we are tracing out.		
-	\end{center}
+	\uncover<+->{
+		\begin{align*}
+			&Tr_B[\rho] : AB \rightarrow A && Tr_A[\rho] : AB \rightarrow B\\
+			&Tr_B[\alpha\tensor\beta] = \alpha \cdot Tr(\beta) &&
+			Tr_A[\alpha\tensor\beta] = Tr(\alpha) \cdot \beta
+		\end{align*}
+		\vspace*{-2em}
+		\begin{gather*}
+			Tr_S[\rho + \sigma] = Tr_S[\rho] + Tr_S[\sigma] \text{ (Linearity)}
+		\end{gather*}
+	}
+
+	\uncover<+->{
+		Partial trace $Tr_B[\rho]$ \textbf{traces out} subsystem $B$.
+	}
 \end{frame}
 
 % \begin{frame}{Example}
@@ -263,14 +298,14 @@
 
 \begin{frame}{Example}
 	\begin{gather*}
-		A = C^2\times C^2\quad B = C^2\times C^2\quad AB = A\tensor B\\
+		A = \mathbb{C}^2\times \mathbb{C}^2\quad B = \mathbb{C}^2\times \mathbb{C}^2\quad AB = A\tensor B\\
 		\rho_{\beta_{00}} = \ket{\beta_{00}}\bra{\beta_{00}} = \frac{\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11}}{2}
 	\end{gather*}
 	\begin{align*}
 		\hspace*{-1cm}
 		Tr_B[\rho_{\beta_{00}}] =& \uncover<2->{\frac{\left(Tr_B[\ket{00}\bra{00}] + Tr_b[\ket{00}\bra{11}] + Tr_b[\ket{11}\bra{00}] + Tr_b[\ket{11}\bra{11}]\right)}{2}}\\
-		\uncover<3->{=& \frac{(\ket{0}\bra{0} \cdot \braket{0|0}) + (\ket{0}\bra{1} \cdot \braket{0|1}) + (\ket{1}\bra{0} \cdot \braket{1|0}) + (\ket{1}\bra{1} \cdot \braket{1|1})}{2}}\\
-		\uncover<4->{=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}}
+		\uncover<3->{=& \frac{(\ket{0}\bra{0} \cdot \spot*<4>[rectangle,fill=blue!30]{\braket{0|0}}) + (\ket{0}\bra{1} \cdot \spot*<4>[rectangle,fill=red!30]{\braket{0|1}}) + (\ket{1}\bra{0} \cdot \spot*<4>[rectangle,fill=red!30]{\braket{1|0}}) + (\ket{1}\bra{1} \cdot \spot*<4>[rectangle,fill=blue!30]{\braket{1|1}})}{2}}\\
+		\uncover<5->{=& \frac{\ket{0}\bra{0} + \ket{1}\bra{1}}{2}}
 	\end{align*}
 \end{frame}
 
@@ -287,11 +322,11 @@
 	\uncover<2->{
 		% A reduced density matrix can be obtained starting from two different states.\\\;\\
 		The partial traces of two different initial states can be equal.\\\;\\
-		Moreover, for a state $\rho\in A\tensor B$, even if we know $Tr_B[\rho]$ and $Tr_A[\rho]$, we cannot uniquely determine $\rho$. 
+		For a state $\rho\in A\tensor B$, even if we know $Tr_B[\rho]$ and $Tr_A[\rho]$, we cannot uniquely determine $\rho$. 
 	}
 \end{frame}
 
-\begin{frame}{Linear Subspaces} %TODO: Work on this
+\begin{frame}{Projection Subspaces} %TODO: Work on this
 	Each projection $P$ corresponds to a linear subspace $\{v \mid Pv = v\}$.\\
 	\;\\
 	The support of a matrix $P$	is the subspace orthogonal to its kernel, i.e., the set $\{v \mid Pv \neq 0\}$.
@@ -301,14 +336,22 @@
 \section{Abstract Domain}
 \begin{frame}{Abstract Domain}
 	\begin{gather*}
-	\mathcal{D} = \mathbb{C}^{2^n}\tensor\mathbb{C}^{2^n},\quad S = (s_1, ..., s_m),\quad 1 \leq m \leq 2^n,\quad s_i \subseteq [n]\\
-		\mathit{AbsDom}(S) = \left\{(P_{s_1}, ..., P_{s_m}) \mid P_{s_i} \text{ is a projection in } \mathbb{C}^{2^{|s_i|}}\tensor\mathbb{C}^{2^{|s_i|}}\right\}
+		\uncover<+->{
+			\mathcal{D} = \mathbb{C}^{2^n}\tensor\mathbb{C}^{2^n},\quad S = (s_1, ..., s_m),\quad 1 \leq m \leq 2^n,\quad s_i \subseteq [n]\\
+		}
+		\uncover<+->{
+			\mathit{AbsDom}(S) = \left\{(P_{s_1}, ..., P_{s_m}) \mid P_{s_i} \text{ is a projection in } \mathbb{C}^{2^{|s_i|}}\tensor\mathbb{C}^{2^{|s_i|}}\right\}
+		}
 	\end{gather*}
-	Intuitively, given a tuple $S$ of sets of qubits, an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S)$ is a tuple of projections over those qubits.\\\;\\
-	{\color{blue} Special case:}
-	\begin{gather*}
-		T = ([n]) \implies \mathit{AbsDom}(T) = \mathcal{D}
-	\end{gather*}
+	\uncover<+->{
+		Intuitively, given a tuple $S$ of sets of qubits, an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S)$ is a tuple of projections over those qubits.\\\;\\
+	}
+	\uncover<+->{
+		{\color{blue} Special case:}
+		\begin{gather*}
+			T = ([n]) \implies \mathit{AbsDom}(T) \simeq \mathcal{D}
+		\end{gather*}
+	}
 \end{frame}
 
 \begin{frame}{Fineness Relation} %TODO: Explain why finer
@@ -319,26 +362,33 @@
 	$T$ is ``more concrete'' than S.\\\;\\
 	% Minimal elements: tuples $(a_1, ... a_m)$ where all $a_i$ are singleton sets.\\
 	Least element: $\bot = (\emptyset, ..., \emptyset)$.\\
-	Greatest element: $\top = ([n], ... [n])$.\\
-	$\mathit{AbsDom}(\top)$ corresponds to a state so abstract that it holds no information at all.\\ %TODO: Maybe remove?
+	Greatest element: $\top = ([n], ... [n])$.\\\;\\
+
+	$\mathit{AbsDom}(\bot)$ corresponds to a state so abstract that it holds no information at all.\\ %TODO: Maybe remove?
 	$\mathit{AbsDom}(\top)$ corresponds to tuples where every projection is a concrete state.
 \end{frame}
 
 \subsection{Abstraction and Concretization Functions}
 \begin{frame}{Abstraction Function}
+	\uncover<+->{
+		\vspace*{-2em}
+		\begin{gather*}
+			S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
+			\alpha_{T \rightarrow S}: \mathit{AbsDom}(T) \rightarrow \mathit{AbsDom}(S)
+		\end{gather*}
+	}
+	\uncover<+->{
 	\vspace*{-2em}
-	\begin{gather*}
-		S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
-		\alpha_{T \rightarrow S}: \mathit{AbsDom}(T) \rightarrow \mathit{AbsDom}(S)
-	\end{gather*}
-	\vspace*{-2em}
-	\begin{gather*}
-		\alpha_{T \rightarrow S}(Q_{t_1}, ..., Q_{t_{m}}) = (P_{s_1}, ..., P_{s_m})\\
-		P_{s_i} = \bigcap_{t_j.\; s_i \subseteq t_J} supp(Tr_{t_j \setminus s_i} [Q_{t_j}])
-	\end{gather*}
-	\\\vspace*{1em}
-	Given an abstract state $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$, we want to compute $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$. For each $i\in [m]$:
-	\begin{enumerate}
+		\begin{gather*}
+			\alpha_{T \rightarrow S}(Q_{t_1}, ..., Q_{t_{m}}) = (P_{s_1}, ..., P_{s_m})\\
+			P_{s_i} = \bigcap_{t_j.\; s_i \subseteq t_J} supp(Tr_{t_j \setminus s_i} [Q_{t_j}])
+		\end{gather*}
+	}
+	\uncover<+->{
+		\\\vspace*{1em}
+		Given an abstract state $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$, we want to compute $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$. For each $i\in [m]$:
+	}
+	\begin{enumerate}[<+->]
 		\item Find all $Q_{t_j}$s such that $s_i \subseteq t_j$. We know that at least one exists (for $j=i$), since $S \trianglelefteq T$.
 		\item For each $Q_{t_j}$ found, trace out the bits in $t_j$ that are not in $s_i$.
 		\item Compute the support of the traced matrices (to preserve the structure of projections).
@@ -347,19 +397,25 @@
 \end{frame}
 
 \begin{frame}{Concretization Function}
-	\vspace*{-2em}
-	\begin{gather*}
-		S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
-		\gamma_{S \rightarrow T}: \mathit{AbsDom}(S) \rightarrow \mathit{AbsDom}(T)
-	\end{gather*}
-	\vspace*{-2em}
-	\begin{gather*}
-		\gamma_{S \rightarrow T}(P_{s_1}, ..., P_{s_m}) = (Q_{t_1}, ..., Q_{t_{m}})\\
-		Q_{t_j} = \bigcap_{s_i.\; s_i \subseteq t_J} P_{s_i} \tensor I_{t_j \setminus s_i}
-	\end{gather*}
-	\\\vspace*{1em}
-	Given an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$, we want to compute $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$. For each $j\in [m]$:
-	\begin{enumerate}
+	\uncover<+->{
+		\vspace*{-2em}
+		\begin{gather*}
+			S \trianglelefteq T \triangleq \forall i \in [m].\; s_i \subseteq t_i\\
+			\gamma_{S \rightarrow T}: \mathit{AbsDom}(S) \rightarrow \mathit{AbsDom}(T)
+		\end{gather*}
+	}
+	\uncover<+->{
+		\vspace*{-2em}
+		\begin{gather*}
+			\gamma_{S \rightarrow T}(P_{s_1}, ..., P_{s_m}) = (Q_{t_1}, ..., Q_{t_{m}})\\
+			Q_{t_j} = \bigcap_{s_i.\; s_i \subseteq t_J} P_{s_i} \tensor I_{t_j \setminus s_i}
+		\end{gather*}
+	}
+	\uncover<+->{
+		\\\vspace*{1em}
+		Given an abstract state $\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m})$, we want to compute $\overline{\tau} \in \mathit{AbsDom}(T) = (Q_{t_1}, ..., Q_{t_m})$. For each $j\in [m]$:
+	}
+	\begin{enumerate}[<+->]
 		\item Find all $P_{s_i}$s such that $s_i \subseteq t_j$. We know at least one exists (for $i=j$), since $S \trianglelefteq T$.
 		\item Extend the projection to the space of all qubits in $t_j$, by computing the tensor product with the identity matrix.
 		\item Compute the intersection of the extended projections.
@@ -414,7 +470,32 @@
 	\begin{equation*}
 		U^\sharp = \alpha_{T \rightarrow S} \circ U^{cg} \circ \gamma_{S \rightarrow T}
 	\end{equation*}
-	We first concretize to a new, finer domain with sufficient precision to accurately represent the operation, then abstract back to the original abstract domain to keep the representation more compact.
+\end{frame}
+
+\begin{frame}{Focus}
+	\uncover<+->{}
+	\begin{equation*}
+		U^\sharp = \alpha_{T \rightarrow S} \circ U^{cg} \circ \gamma_{S \rightarrow T}
+	\end{equation*}
+	\uncover<+->{
+		\resizebox{\linewidth}{!}{
+			\begin{tikzpicture}[every node/.style={draw=none}]
+				\node[] (A) {$\mathit{AbsDom}(S)$};
+				\node[right=1cm of A] (B) {$\mathit{AbsDom}(T)$};
+				\node[right=1cm of B] (C) {$\mathit{AbsDom}(T)$};
+				\node[right=1cm of C] (D) {$\mathit{AbsDom}(S)$};
+
+				\path[->] (A) edge node[above]{$\gamma_{S \rightarrow T}$} node[below]{\scriptsize Focus} (B);
+				\path[->] (B) edge node[above]{$U^{cg}$} node[below]{\scriptsize Apply} (C);
+				\path[->] (C) edge node[above]{$\alpha_{T \rightarrow S}$} node[below]{\scriptsize Unfocus} (D);
+			\end{tikzpicture}
+		}
+	}
+	\begin{itemize}[<+->]
+		\item[Focus] - concretize to a new, finer domain with sufficient precision to accurately represent the operation;
+		\item[Apply] - apply the unitary operator to all the elements in the tuple
+		\item[Unfocus] - abstract back to the original abstract domain to keep the representation more compact
+	\end{itemize}
 \end{frame}
 
 \subsection{Assertions}
@@ -500,19 +581,20 @@
 		\hline
 		Type of $S$ & Pros & Cons\\
 		\hline
-		Less, smaller sets & {\begin{tabular}{@{}c@{}}Less computational cost\\and memory footprint\end{tabular}} & Less precision\\
+		Less, smaller sets & \specialcell{Less computational cost\\and memory footprint} & Less precision\\
 		\hline
-		More, bigger sets & {\begin{tabular}{@{}c@{}}More computational cost\\and memory footprint\end{tabular}} & More precision\\
+		More, bigger sets & \specialcell{More computational cost\\and memory footprint} & More precision\\
 		\hline
 	\end{tabular}\\
 	}
 	\vspace*{1em}
 	\uncover<3->{
-	{\large \color{blue} Example:}\\
+	{\large \color{blue} Examples:}\\
 	\begin{itemize}
+		\item $S_0 = $ all $2^n$ combinations of up to $n$ qubits
 		\item $S_1 = $ all $\begin{pmatrix}
 			n \\ k
-		\end{pmatrix}$ combinations of $k$ qubits
+		\end{pmatrix}$ combinations of exactly $k$ qubits
 		\item $S_2 = $ sets that contain qubits used by at least two 3-qubit gates
 		\item ...
 	\end{itemize}
@@ -533,6 +615,27 @@
 	\begin{equation*}
 		\ket{\phi}^{(t)} \in A = span\{\ket{\beta}, \ket{\phi}\}
 	\end{equation*}
+\end{frame}
+
+
+\begin{frame}{Assertion Checking Example (ctd.)}
+	\begin{equation*}
+		P(v) \triangleq v \in A = span\{\ket{\beta}, \ket{\phi}\}
+	\end{equation*}
+	\uncover<2->{
+	We need to check:
+	}
+	\begin{enumerate}
+		\uncover<2->{
+			\item $P\left(\ket{\phi}^{(0)}\right) \uncover<3->{\triangleq \ket{\phi} \in span\{\ket{\beta}, \ket{\phi}\}}$
+		}
+		\uncover<4->{
+			\item $P\left(\ket{\phi}^{(t)}\right) \implies P\left(\ket{\phi}^{(t+1)}\right) \uncover<5->{\,\,\triangleq\,\, \ket{\phi}^{(t)} \!\in\! A \,\,\implies\,\, G\ket{\phi}^{(t)} \!\in\! A}$
+		}
+	\end{enumerate}
+	\begin{align*}
+		G\ket{\phi}^{(t)} \!\in\! A = G\ket{\beta} \!\in\! A \land G\ket{\phi} \!\in\! A&& \quad\text{\footnotesize By linearity of G and } \ket{\phi}^{(t)} \!\in\! A
+	\end{align*}
 \end{frame}
 
 %MARK: Extra
@@ -571,6 +674,19 @@
 		\end{pmatrix}$
 		\item Return $supp(P)$
 	\end{enumerate}
+\end{frame}
+
+\begin{frame}{Partial trace}
+	\begin{center}
+		Alternatively:
+	\end{center}
+	\vspace*{-2em}
+	\begin{align*}
+		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
+	\end{align*}
+	\begin{center}
+		Where $v$ labels vectors of an orthonormal basis of the subspace we are tracing out.		
+	\end{center}
 \end{frame}
 
 % Introduction
