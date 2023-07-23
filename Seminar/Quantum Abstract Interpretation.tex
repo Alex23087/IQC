@@ -139,9 +139,11 @@
 
 \subsection{Abstract Interpretation}
 \begin{frame}{What is abstract interpretation?}
-	Instead of considering the \textbf{concrete domain}, we restrict our analysis to a \textbf{more coarse domain}, an \textbf{abstract domain}.\\\;\\
+	Instead of considering the \textbf{concrete domain}, we restrict our analysis to a \textbf{more coarse domain}, an \textbf{abstract domain}.\\
+	\vspace*{0.5em}
 	\pause
 	The abstract domain we consider should be:
+	\vspace*{-0.5em}
 	\pause
 	\begin{center}
 		\begin{columns}
@@ -154,6 +156,13 @@
 			\end{column}
 		\end{columns}
 	\end{center}
+	\uncover<+->{
+		Abstract interpretation is usually sound, but not complete:
+		\begin{itemize}
+		\item AI returns \textbf{true} $\implies$ Property is \textbf{true}
+		\item AI returns \textbf{false} $\implies$ Property can be either \textbf{true} or \textbf{false}		
+		\end{itemize}
+	}
 \end{frame}
 
 \begin{frame}{Ingredients}
@@ -235,7 +244,10 @@
 		\end{align*}
 		\vspace*{-2em}
 		\begin{gather*}
-			Tr_S[\rho + \sigma] = Tr_S[\rho] + Tr_S[\sigma] \text{ (Linearity)}
+			\left.\begin{array}{@{}ll@{}}
+				Tr_S[\rho + \sigma] = Tr_S[\rho] + Tr_S[\sigma]\\
+				Tr_S[a \cdot \rho] = a \cdot Tr_S[\rho]
+			\end{array}\right\} \text{ (Linearity)}
 		\end{gather*}
 	}
 
@@ -301,6 +313,7 @@
 		A = \mathbb{C}^2\times \mathbb{C}^2\quad B = \mathbb{C}^2\times \mathbb{C}^2\quad AB = A\tensor B\\
 		\rho_{\beta_{00}} = \ket{\beta_{00}}\bra{\beta_{00}} = \frac{\ket{00}\bra{00} + \ket{00}\bra{11} + \ket{11}\bra{00} + \ket{11}\bra{11}}{2}
 	\end{gather*}
+	\vspace*{2em}
 	\begin{align*}
 		\hspace*{-1cm}
 		Tr_B[\rho_{\beta_{00}}] =& \uncover<2->{\frac{\left(Tr_B[\ket{00}\bra{00}] + Tr_b[\ket{00}\bra{11}] + Tr_b[\ket{11}\bra{00}] + Tr_b[\ket{11}\bra{11}]\right)}{2}}\\
@@ -327,10 +340,13 @@
 \end{frame}
 
 \begin{frame}{Projection Subspaces} %TODO: Work on this
-	Each projection $P$ corresponds to a linear subspace $\{v \mid Pv = v\}$.\\
+	Each projection $P$ corresponds to a linear subspace $S_P = \{v \mid Pv = v\}$.\\
 	\;\\
-	The support of a matrix $P$	is the subspace orthogonal to its kernel, i.e., the set $\{v \mid Pv \neq 0\}$.
+	\pause
+	The support of a matrix $P$	is the subspace orthogonal to its kernel, i.e., the set $supp(P) = \{v \mid Pv \neq 0\}$.\\
 	\;\\
+	\pause
+	This duality between projections and subspaces will be employed multiple times and will often be implied.
 \end{frame}
 
 \section{Abstract Domain}
@@ -360,10 +376,12 @@
 		\bunder{S \trianglelefteq T}{``T is finer than S''} \triangleq \forall i \in [m].\; s_i \subseteq t_i
 	\end{equation*}
 	$T$ is ``more concrete'' than S.\\\;\\
+	\pause
 	% Minimal elements: tuples $(a_1, ... a_m)$ where all $a_i$ are singleton sets.\\
 	Least element: $\bot = (\emptyset, ..., \emptyset)$.\\
-	Greatest element: $\top = ([n], ... [n])$.\\\;\\
+	Greatest element: $\top = ([n], ... [n]) = [n]^m$.\\\;\\
 
+	\pause
 	$\mathit{AbsDom}(\bot)$ corresponds to a state so abstract that it holds no information at all.\\ %TODO: Maybe remove?
 	$\mathit{AbsDom}(\top)$ corresponds to tuples where every projection is a concrete state.
 \end{frame}
@@ -390,7 +408,7 @@
 	}
 	\begin{enumerate}[<+->]
 		\item Find all $Q_{t_j}$s such that $s_i \subseteq t_j$. We know that at least one exists (for $j=i$), since $S \trianglelefteq T$.
-		\item For each $Q_{t_j}$ found, trace out the bits in $t_j$ that are not in $s_i$.
+		\item For each $Q_{t_j}$ found, trace out the qubits in $t_j$ that are not in $s_i$.
 		\item Compute the support of the traced matrices (to preserve the structure of projections).
 		\item Compute the intersection of the supports.
 	\end{enumerate}
@@ -422,51 +440,16 @@
 	\end{enumerate}
 \end{frame}
 
-\begin{frame}{Order Relation on Abstract States}
-	\begin{gather*}
-		1 \leq m \leq 2^n,\quad S = (s_1, ... s_m),\quad \forall i \in [m].\; s_i \subseteq [n]\\
-		\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m}),\quad \overline{\tau} \in \mathit{AbsDom}(S) = (Q_{s_1}, ..., Q_{s_m})
-	\end{gather*}
-	\begin{gather*}
-		\overline{\sigma} \sqsubseteq \overline{\tau} \triangleq \forall i \in [m].\; \hspace*{-1.9em}\bunder{P_{s_i} \subseteq Q_{s_i}}{Subspace interpretation\\of projections}
-	\end{gather*}
-\end{frame}
-
-\begin{frame}{Monotonicity}
-	\begin{gather*}
-		S \trianglelefteq T\\
-		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\quad \overline{\sigma} \sqsubseteq \overline{\tau} \implies \alpha_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\alpha_{T\rightarrow S}(\overline{\tau})\\
-		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\quad \overline{\sigma} \sqsubseteq \overline{\tau} \implies \gamma_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\gamma_{T\rightarrow S}(\overline{\tau})
-	\end{gather*}
-\end{frame}
-
-\begin{frame}{Galois connection}
-	\begin{gather*}
-		S \trianglelefteq T\\
-		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}(T).\\
-		\hspace*{-3em}
-		\left(\begin{array}{@{}cc@{}@{}}
-			\overline{\tau}\sqsubseteq \gamma_{S \rightarrow T}(\overline{\sigma}) \implies \alpha_{T\rightarrow S}(\overline{\tau})\sqsubseteq \overline{\sigma} \\
-			\land\\
-			\left(\exists \overline{\rho}\in\mathit{AbsDom}([n]^m).\;\overline{\tau} = \alpha_{[n]^m\rightarrow T}(\overline{\rho})\right) \;\implies\; \overline{\tau}\sqsubseteq \gamma_{S\rightarrow T}(\overline{\sigma}) \iff \alpha_{T\rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma} 
-		  \end{array}\right)
-	\end{gather*}
-
-	\begin{gather*}
-		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}([n]^m).\\
-		\overline{\tau} \sqsubseteq \gamma_{S\rightarrow [n]^m}(\overline{\sigma}) \quad\iff\quad \alpha_{[n]^m \rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma}
-	\end{gather*}
-\end{frame}
-
 \subsection{Abstract Operations}
 \begin{frame}{Abstract Operations}
 	Operations on the concrete domain are unitary operators $U$.\\
 	To apply them to a concrete state $\rho$ we compute $U\rho U^\dagger$.\\
 	We want to define $U^\sharp: \mathit{AbsDom}(S) \rightarrow \mathit{AbsDom}(S)$.\\
+	\pause
 	\vspace*{1em}
 	Let $T = (t_1, ..., t_m)$ s.t. $t_i = s_i \cup s_U$, where $s_U$ denotes the set of qubits that matrix $U$ acts on.\\
-
-	Let $U^{cg}(\overline{\sigma}) = (UT_{t_1}U^\dagger, ..., UT_{t_m}U^\dagger)$, then
+	\pause
+	Let $U^{cg}(\overline{\sigma}) = (UT_{t_1}U^\dagger, ..., UT_{t_m}U^\dagger)$\pause , then
 	\begin{equation*}
 		U^\sharp = \alpha_{T \rightarrow S} \circ U^{cg} \circ \gamma_{S \rightarrow T}
 	\end{equation*}
@@ -501,14 +484,49 @@
 \subsection{Assertions}
 \begin{frame}{Assertions}
 	We want to check that a state of a program lies in the span of two vectors.\\
+	\pause
 	We define an assertion as:
 	\begin{equation*}
 		A = span\{v_1 = \ket{a_1}...\ket{a_n},\;\; v_2 = \ket{b_1}...\ket{b_n}\}
 	\end{equation*}
+	\pause
 	And a projection $proj(A)$ onto this subspace, such that:
 	\begin{equation*}
 		proj(A)v_1 = v_1 \qquad proj(A)v_2 = v_2
 	\end{equation*}
+\end{frame}
+
+
+\begin{frame}{Order Relation on Abstract States}
+	\begin{gather*}
+		1 \leq m \leq 2^n,\quad S = (s_1, ... s_m),\quad \forall i \in [m].\; s_i \subseteq [n]\\
+		\overline{\sigma} \in \mathit{AbsDom}(S) = (P_{s_1}, ..., P_{s_m}),\quad \overline{\tau} \in \mathit{AbsDom}(S) = (Q_{s_1}, ..., Q_{s_m})
+	\end{gather*}
+	\begin{gather*}
+		\overline{\sigma} \sqsubseteq \overline{\tau} \triangleq \forall i \in [m].\; \hspace*{-1.9em}\bunder{P_{s_i} \subseteq Q_{s_i}}{Subspace interpretation\\of projections}
+	\end{gather*}
+\end{frame}
+
+\begin{frame}{Monotonicity and Galois Connection}
+	Monotonicity of \emph{abstraction}, \emph{concretization}, and \emph{abstract operations}:
+	\vspace*{-1em}
+	\begin{gather*}
+		S \trianglelefteq T\\
+		\forall \overline{\sigma}, \overline{\tau} \in \mathit{AbsDom}(T).\\
+		\left(\begin{array}{@{}cc@{}}
+			\overline{\sigma} \sqsubseteq \overline{\tau} \implies \alpha_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\alpha_{T\rightarrow S}(\overline{\tau})\\
+			\land\\
+			\overline{\sigma} \sqsubseteq \overline{\tau} \implies \gamma_{T\rightarrow S}(\overline{\sigma})\sqsubseteq\gamma_{T\rightarrow S}(\overline{\tau})\\
+			\land\\
+			\overline{\sigma} \sqsubseteq \overline{\tau} \implies U^{\sharp}(\overline{\sigma})\sqsubseteq U^{\sharp}(\overline{\tau})
+		\end{array}\right)
+	\end{gather*}
+	\pause
+	Galois connection:
+	\begin{gather*}
+		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}([n]^m).\\
+		\overline{\tau} \sqsubseteq \gamma_{S\rightarrow [n]^m}(\overline{\sigma}) \quad\iff\quad \alpha_{[n]^m \rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma}
+	\end{gather*}
 \end{frame}
 
 \begin{frame}{Connectivity}
@@ -547,10 +565,13 @@
 \end{frame}
 
 \begin{frame}{Assertion Checking}
-	Given an assertion $A$, if the final state of a computation is $v$ and the final abstract state of the abstract interpretation is $\overline{v} \in \mathit{AbsDom}(S)$, with $S$ connected, then:
+	Given an assertion $A$, if the final state of a computation is $v$ and the final abstract state of the abstract interpretation is $\overline{v} \in \mathit{AbsDom}(S)$, with $S$ connected, then:\\
 	\begin{gather*}
 		\overline{v} \sqsubseteq \alpha_{[n]^m \rightarrow S}(proj(A)) \quad\implies\quad v \in A 
-	\end{gather*}  
+	\end{gather*}\\
+	\vspace*{1.5em}
+	\pause
+	Essentially, if the abstract state satisfies the assertion, then the concrete one does as well.
 \end{frame}
 
 \begin{frame}{Choice of Tuple S}
@@ -601,20 +622,38 @@
 	}
 \end{frame}
 
-\begin{frame}{Assertion Checking Example}
-	We want to check (partial) correctness of Grover's algorithm.\\\;\\
+\begin{frame}{Choice of Tuple S (ctd.)}
+	Another important factor in the choice for the abstract state is which qubits are put together in projections.\\
+	A good choice would make the abstract interpretation \emph{flow-sensitive}.\\\;\\
+	\pause
+	{\large \color{blue} Example:}
+	\begin{itemize}
+		\item $U_1$ acts on qubits $\{1,2,3\}$ with $\{1,2\}$ as input and $\{3\}$ as output.
+		\item $U_2$ acts on qubits $\{3,4,5\}$ with $\{3,4\}$ as input and $\{5\}$ as output.
+	\end{itemize}
+	\pause
+	A good choice which would improve the precision of the abstract interpretation is to have the set $\{1,2,3,4,5\}$ in the abstract state.
+\end{frame}
 
-	{\large \color{blue} Grover's algorithm steps:}
-	\begin{enumerate}
+\begin{frame}{Assertion Checking Example}
+	\uncover<+->{
+		We want to check (partial) correctness of Grover's algorithm.\\\;\\
+	}
+	\uncover<2->{
+		{\large \color{blue} Grover's algorithm steps:}
+	}
+	\begin{enumerate}[<+->]
 		\item Prepare the initial state $\ket{\phi}^{(0)}$
 		\item Repeat approx. $\frac{\pi}{4}\sqrt{N}$ times $\ket{\phi}^{(t+1)} = G\ket{\phi}^{(t)}$.
 		\item Measure in the computational basis.
 	\end{enumerate}\;\\
 
-	With this abstract interpretation framework, we can prove the loop invariant:
-	\begin{equation*}
-		\ket{\phi}^{(t)} \in A = span\{\ket{\beta}, \ket{\phi}\}
-	\end{equation*}
+	\uncover<+->{
+		With this abstract interpretation framework, we can prove the loop invariant:
+		\begin{equation*}
+			\ket{\phi}^{(t)} \in A = span\{\ket{\beta}, \ket{\phi}\}
+		\end{equation*}
+	}
 \end{frame}
 
 
@@ -633,14 +672,28 @@
 			\item $P\left(\ket{\phi}^{(t)}\right) \implies P\left(\ket{\phi}^{(t+1)}\right) \uncover<5->{\,\,\triangleq\,\, \ket{\phi}^{(t)} \!\in\! A \,\,\implies\,\, G\ket{\phi}^{(t)} \!\in\! A}$
 		}
 	\end{enumerate}
-	\begin{align*}
-		G\ket{\phi}^{(t)} \!\in\! A = G\ket{\beta} \!\in\! A \land G\ket{\phi} \!\in\! A&& \quad\text{\footnotesize By linearity of G and } \ket{\phi}^{(t)} \!\in\! A
-	\end{align*}
+	\uncover<6->{
+		\begin{align*}
+			G\ket{\phi}^{(t)} \!\in\! A = G\ket{\beta} \!\in\! A \land G\ket{\phi} \!\in\! A&& \quad\text{\footnotesize By linearity of G and } \ket{\phi}^{(t)} \!\in\! A
+		\end{align*}
+	}
+\end{frame}
+
+\section{Conclusions}
+\begin{frame}{Future developments}
+	\begin{itemize}
+		\item Programs with measurements
+		\item Conditionals
+		\item Loops
+		\item Mix of classical and quantum computation
+		\item Choosing the optimal abstract space
+		\item Other kinds of assertions
+	\end{itemize}
 \end{frame}
 
 %MARK: Extra
 \section*{Extra material}
-\begin{frame}{Computing the Projection of a Support}
+\begin{frame}{Computing the Projection of a Support}[noframenumbering]
 	To compute a projection corresponding to $supp(A)$, we:
 	\begin{enumerate}
 		\item take the rows $\{r_1, ..., r_n\}$ of A;
@@ -652,7 +705,7 @@
 	\end{enumerate}
 \end{frame}
 
-\begin{frame}{Computing the Projection of an Intersection}
+\begin{frame}{Computing the Projection of an Intersection}[noframenumbering]
 
     % //    (I \otimes ... \otimes I) -
     % //    supp( k(I \otimes I \times I) - (l.0 + ... + l.(k-1)) )
@@ -662,7 +715,7 @@
 	\end{gather*}
 \end{frame}
 
-\begin{frame}{Computing the Assertion Projection}
+\begin{frame}{Computing the Assertion Projection}[noframenumbering]
 	Given two vectors
 	\begin{gather*}
 		v_1 = \ket{a_1}...\ket{a_n}\\
@@ -677,10 +730,6 @@
 \end{frame}
 
 \begin{frame}{Partial trace}
-	\begin{center}
-		Alternatively:
-	\end{center}
-	\vspace*{-2em}
 	\begin{align*}
 		Tr_B[\rho] &= \sum_{v=0}^{2^m} (I_A \tensor \bra{v})\rho(I_A \tensor \ket{v}) && Tr_A[\rho] = \sum_{v=0}^{2^n} (\bra{v} \tensor I_B)\rho(\ket{v} \tensor I_B)
 	\end{align*}
@@ -688,6 +737,23 @@
 		Where $v$ labels vectors of an orthonormal basis of the subspace we are tracing out.		
 	\end{center}
 \end{frame}
+
+\begin{frame}{Weak Galois Connection}
+	\begin{gather*}
+		S \trianglelefteq T\\
+		\forall \overline{\sigma}\in \mathit{AbsDom}(S).\; \forall \overline{\tau}\in \mathit{AbsDom}(T).\\
+		\hspace*{-3em}
+		\left(\begin{array}{@{}cc@{}@{}}
+			\overline{\tau}\sqsubseteq \gamma_{S \rightarrow T}(\overline{\sigma}) \implies \alpha_{T\rightarrow S}(\overline{\tau})\sqsubseteq \overline{\sigma} \\
+			\land\\
+			\left(\exists \overline{\rho}\in\mathit{AbsDom}([n]^m).\;\overline{\tau} = \alpha_{[n]^m\rightarrow T}(\overline{\rho})\right) \;\implies\; \overline{\tau}\sqsubseteq \gamma_{S\rightarrow T}(\overline{\sigma}) \iff \alpha_{T\rightarrow S}(\overline{\tau}) \sqsubseteq \overline{\sigma} 
+		  \end{array}\right)
+	\end{gather*}
+\end{frame}
+
+\dospots
+\addtocounter{framenumber}{-5}
+
 
 % Introduction
 % Reasons
