@@ -59,7 +59,7 @@
 
 \section{Introduction}
 \begin{frame}{Introduction}
-	As quantum computing advances, we would like to have some means to prove correctness properties on quantum programs, \emph{especially} since quantum programming is counterintuitive.\\
+	As quantum computing advances, we would like to have some means to prove correctness properties on quantum programs, \emph{especially} since quantum programming is unintuitive.\\
 \end{frame}
 
 \subsection{Reasons}
@@ -475,7 +475,7 @@
 		}
 	}
 	\begin{itemize}[<+->]
-		\item[Focus] - concretize to a new, finer domain with sufficient precision to accurately represent the operation;
+		\item[Focus] - concretize to a new, finer domain with sufficient precision to accurately represent the operation ($\forall i \in [m].\; s_U \subseteq t_i$);
 		\item[Apply] - apply the unitary operator to all the elements in the tuple
 		\item[Unfocus] - abstract back to the original abstract domain to keep the representation more compact
 	\end{itemize}
@@ -598,15 +598,16 @@
 	% \end{columns}
 	\vspace*{1em}
 	\uncover<2->{
-	\begin{tabular}{| c | c | c |}
-		\hline
-		Type of $S$ & Pros & Cons\\
-		\hline
-		Less, smaller sets & \specialcell{Less computational cost\\and memory footprint} & Less precision\\
-		\hline
-		More, bigger sets & \specialcell{More computational cost\\and memory footprint} & More precision\\
-		\hline
-	\end{tabular}\\
+		\hspace*{-2em}
+		\begin{tabular}{| c | c | c |}
+			\hline
+			Type of $S$ & Pros & Cons\\
+			\hline
+			Less, smaller sets & \specialcell{Less computational cost\\and memory footprint} & Less precision\\
+			\hline
+			More, bigger sets & More precision & \specialcell{More computational cost\\and memory footprint}\\
+			\hline
+		\end{tabular}\\
 	}
 	\vspace*{1em}
 	\uncover<3->{
